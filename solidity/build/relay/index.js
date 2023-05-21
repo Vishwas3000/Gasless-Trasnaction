@@ -1,14 +1,12 @@
-"use strict"
+'use strict';
 
-var ethers = require("ethers")
-var require$$0 = require("defender-relay-client/lib/ethers")
+var ethers = require('ethers');
+var require$$0 = require('defender-relay-client/lib/ethers');
 
-function _interopDefaultLegacy(e) {
-    return e && typeof e === "object" && "default" in e ? e : { default: e }
-}
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
-var ethers__default = /*#__PURE__*/ _interopDefaultLegacy(ethers)
-var require$$0__default = /*#__PURE__*/ _interopDefaultLegacy(require$$0)
+var ethers__default = /*#__PURE__*/_interopDefaultLegacy(ethers);
+var require$$0__default = /*#__PURE__*/_interopDefaultLegacy(require$$0);
 
 /**
  * ABI of the MinimalForwarder contract
@@ -69,56 +67,54 @@ const ForwarderAbi$1 = [
         stateMutability: "view",
         type: "function",
     },
-]
+];
 
 var forwarder = {
     ForwarderAbi: ForwarderAbi$1,
-}
+};
 
-var MinimalForwarder = "0x74DEA5ECD866f32DA775bf03F8e442704252d7dC"
-var Registry = "0xEcaf0ab0A88eDAeFA8b7f3b0a97b223DC6Eac57a"
-var require$$2 = { MinimalForwarder: MinimalForwarder, Registry: Registry }
+var MinimalForwarder="0x9D2DfB2A22Ba266952138a36a3c98b70a3D28668";var DevToken="0x34bd55b5B9e5c7917a3ab7b99A57065310e401Df";var require$$2 = {MinimalForwarder:MinimalForwarder,DevToken:DevToken};
 
-const { DefenderRelaySigner, DefenderRelayProvider } = require$$0__default["default"]
+const { DefenderRelaySigner, DefenderRelayProvider } = require$$0__default["default"];
 
-const { ForwarderAbi } = forwarder
-const ForwarderAddress = require$$2.MinimalForwarder
+const { ForwarderAbi } = forwarder;
+const ForwarderAddress = require$$2.MinimalForwarder;
 
 async function relay(forwarder, request, signature, whitelist) {
     // Decide if we want to relay this request based on a whitelist
-    const accepts = !whitelist || whitelist.includes(request.to)
+    const accepts = !whitelist || whitelist.includes(request.to);
     if (!accepts) throw new Error(`Rejected request to ${request.to}`)
 
     // Validate request on the forwarder contract
-    const valid = await forwarder.verify(request, signature)
+    const valid = await forwarder.verify(request, signature);
     if (!valid) throw new Error(`Invalid request`)
 
     // Send meta-tx through relayer to the forwarder contract
-    const gasLimit = (parseInt(request.gas) + 50000).toString()
+    const gasLimit = (parseInt(request.gas) + 50000).toString();
     return await forwarder.execute(request, signature, { gasLimit })
 }
 
 async function handler(event) {
     // Parse webhook payload
     if (!event.request || !event.request.body) throw new Error(`Missing payload`)
-    const { request, signature } = event.request.body
-    console.log(`Relaying`, request)
+    const { request, signature } = event.request.body;
+    console.log(`Relaying`, request);
 
     // Initialize Relayer provider and signer, and forwarder contract
-    const credentials = { ...event }
-    const provider = new DefenderRelayProvider(credentials)
-    const signer = new DefenderRelaySigner(credentials, provider, { speed: "fast" })
-    const forwarder = new ethers__default["default"].Contract(ForwarderAddress, ForwarderAbi, signer)
+    const credentials = { ...event };
+    const provider = new DefenderRelayProvider(credentials);
+    const signer = new DefenderRelaySigner(credentials, provider, { speed: "fast" });
+    const forwarder = new ethers__default["default"].Contract(ForwarderAddress, ForwarderAbi, signer);
 
     // Relay transaction!
-    const tx = await relay(forwarder, request, signature)
-    console.log(`Sent meta-tx: ${tx.hash}`)
+    const tx = await relay(forwarder, request, signature);
+    console.log(`Sent meta-tx: ${tx.hash}`);
     return { txHash: tx.hash }
 }
 
 var relay_1 = {
     handler,
     relay,
-}
+};
 
-module.exports = relay_1
+module.exports = relay_1;

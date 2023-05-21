@@ -8,7 +8,7 @@ async function run() {
 
     // create relay using defender client
     const requestParams = {
-        name: "Test Relayer",
+        name: "Relay for Gasless-Tx",
         network: "sepolia",
         minBalance: BigInt(1e17).toString(),
     }

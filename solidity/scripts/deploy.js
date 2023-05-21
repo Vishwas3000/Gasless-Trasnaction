@@ -18,9 +18,12 @@ async function main() {
         .deploy()
         .then((f) => f.deployed())
 
-    const Registry = await ethers.getContractFactory("Registry")
-    const registry = await Registry.connect(relaySigner)
-        .deploy(forwarder.address)
+    const maxTokenLimit = ethers.utils.parseEther("100000000")
+    const maxHoldLimit = ethers.utils.parseEther("100")
+
+    const DevToken = await ethers.getContractFactory("DevToken")
+    const devToken = await DevToken.connect(relaySigner)
+        .deploy(maxTokenLimit, maxHoldLimit, forwarder.address)
         .then((f) => f.deployed())
 
     writeFileSync(
@@ -28,14 +31,14 @@ async function main() {
         JSON.stringify(
             {
                 MinimalForwarder: forwarder.address,
-                Registry: registry.address,
+                DevToken: devToken.address,
             },
             null,
             2
         )
     )
 
-    console.log(`MinimalForwarder: ${forwarder.address}\nRegistry: ${registry.address}`)
+    console.log(`MinimalForwarder: ${forwarder.address}\nDevToken: ${devToken.address}`)
 }
 
 if (require.main === module) {
